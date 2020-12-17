@@ -50,6 +50,7 @@ public class OrderServiceImpl implements IOrderService {
     //本地
     @Autowired
     private TradeOrderMapper orderMapper;
+    //雪花算法
     @Autowired
     private IDWorker idWorker;
 
@@ -219,6 +220,7 @@ public class OrderServiceImpl implements IOrderService {
      * 2.1.核算运费
      */
     private BigDecimal calculateShippingFee(BigDecimal orderAmount) {
+        //超过100 就包邮
         if(orderAmount.compareTo(new BigDecimal(100))==1){
             return BigDecimal.ZERO;
         }else{
