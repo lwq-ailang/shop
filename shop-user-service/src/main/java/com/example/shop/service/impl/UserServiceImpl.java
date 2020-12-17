@@ -1,4 +1,4 @@
-package com.example.shop.impl;
+package com.example.shop.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.example.api.IUserService;

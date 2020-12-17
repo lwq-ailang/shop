@@ -1,13 +1,48 @@
-shop-parent：父工程
-shop-common：工具工程
-shop-api：接口层
-shop-pojo：实体类
+##项目结构：
+    shop-parent：父工程
+    shop-common：工具工程
+    shop-api：接口层
+    shop-pojo：实体类
+    shop-order-web：订单系统
+    shop-pay-web：支付系统
+    shop-coupon-service：优惠券服务
+    shop-goods-service：商品服务
+    shop-user-service：用户服务
+    shop-order-service：订单服务
+    shop-pay-service：支付服务
+    
 
-shop-order-web：订单系统
-shop-pay-web：支付系统
+####1.校验订单
+    1)校验订单是否存在：判断订单参数是否为空
+    2)校验订单中的商品是否存在：根据订单传来的商品id查询商品是否存在
+    3)校验下单用户是否存在：根据订单传来的用户id查询用户是否存在
+    4)校验商品单价是否合法：商品单价 ？ 订单单价
+    5)校验订单商品数量是否合法：商品数量 ？ 订单数量
 
-shop-coupon-service：优惠券服务
-shop-goods-service：商品服务
-shop-user-service：用户服务
-shop-order-service：订单服务
-shop-pay-service：支付服务
+####2.生成预订单
+    1)设置订单状态为不可见
+    2)设置订单ID
+    3)核算订单运费：看是否包邮
+    4)核算订单总金额是否合法：不包邮需要加上邮费
+    5)判断用户是否使用余额：
+    6)判断用户是否使用优惠券：优惠券是否合法
+    7)核算订单支付金额：订单总金额-余额-优惠券金额
+    8)设置下单时间
+    9)保存订单到数据库
+    10)返回订单ID
+
+####3.扣减库存
+
+####4.扣减优惠券
+
+####5.使用余额
+
+####6.确认订单
+
+####7.返回成功状态
+
+####注意：保证原子性：3,4,5,6,7保持一致性，一起成功，一起失败
+
+####8.确认订单失败,发送消息
+
+####9.返回失败状态

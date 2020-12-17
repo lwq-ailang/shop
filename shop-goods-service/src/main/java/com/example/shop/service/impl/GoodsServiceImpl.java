@@ -1,4 +1,4 @@
-package com.example.shop.impl;
+package com.example.shop.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.example.api.IGoodsService;
@@ -15,23 +15,26 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
+//dubbo生成者
 @Service(interfaceClass = IGoodsService.class)
 public class GoodsServiceImpl implements IGoodsService {
 
     @Autowired
     private TradeGoodsMapper goodsMapper;
-
     @Autowired
     private TradeGoodsNumberLogMapper goodsNumberLogMapper;
 
+    //根据goodsId查询商品信息
     @Override
     public TradeGoods findOne(Long goodsId) {
         if (goodsId == null) {
+            //请求参数有误
             CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
         }
         return goodsMapper.selectByPrimaryKey(goodsId);
     }
 
+    //减库存
     @Override
     public Result reduceGoodsNum(TradeGoodsNumberLog goodsNumberLog) {
         if (goodsNumberLog == null ||

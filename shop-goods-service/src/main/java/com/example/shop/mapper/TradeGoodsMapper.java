@@ -7,8 +7,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-@Mapper
+@Mapper //mybatis注解
 public interface TradeGoodsMapper {
+
     int countByExample(TradeGoodsExample example);
 
     int deleteByExample(TradeGoodsExample example);
@@ -21,6 +22,7 @@ public interface TradeGoodsMapper {
 
     List<TradeGoods> selectByExample(TradeGoodsExample example);
 
+    //根据goodsId查找商品信息
     TradeGoods selectByPrimaryKey(Long goodsId);
 
     int updateByExampleSelective(@Param("record") TradeGoods record, @Param("example") TradeGoodsExample example);
