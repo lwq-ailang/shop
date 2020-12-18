@@ -22,7 +22,7 @@ public interface TradeGoodsMapper {
 
     List<TradeGoods> selectByExample(TradeGoodsExample example);
 
-    //根据goodsId查找商品信息
+    //根据goodsId查找商品信息 --
     TradeGoods selectByPrimaryKey(Long goodsId);
 
     int updateByExampleSelective(@Param("record") TradeGoods record, @Param("example") TradeGoodsExample example);

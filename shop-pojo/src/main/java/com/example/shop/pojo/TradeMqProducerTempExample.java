@@ -1,14 +1,15 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TradeMqProducerTempExample {
+public class TradeMqProducerTempExample implements Serializable {
+
+    private static final long serialVersionUID = -8019156362421857759L;
     protected String orderByClause;
-
     protected boolean distinct;
-
     protected List<Criteria> oredCriteria;
 
     public TradeMqProducerTempExample() {

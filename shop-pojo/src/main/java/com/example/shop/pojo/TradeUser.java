@@ -1,20 +1,17 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class TradeUser {
+public class TradeUser implements Serializable {
+
+    private static final long serialVersionUID = -265550377915536730L;
     private Long userId;
-
     private String userName;
-
     private String userPassword;
-
     private String userMobile;
-
     private Integer userScore;
-
     private Date userRegTime;
-
     private Long userMoney;
 
     public Long getUserId() {

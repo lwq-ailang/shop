@@ -15,19 +15,18 @@ import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 
-
 @Slf4j
 @Component
-@RocketMQMessageListener(topic = "${mq.order.topic}", consumerGroup = "${mq.order.consumer.group.name}", messageModel = MessageModel.BROADCASTING)
+@RocketMQMessageListener(topic = "${mq.order.topic}",
+        consumerGroup = "${mq.order.consumer.group.name}",
+        messageModel = MessageModel.BROADCASTING)
 public class CancelMQListener implements RocketMQListener<MessageExt> {
-
 
     @Autowired
     private TradeCouponMapper couponMapper;
 
     @Override
     public void onMessage(MessageExt message) {
-
         try {
             //1. 解析消息内容
             String body = new String(message.getBody(), "UTF-8");
@@ -47,6 +46,6 @@ public class CancelMQListener implements RocketMQListener<MessageExt> {
             e.printStackTrace();
             log.error("回退优惠券失败");
         }
-
     }
+
 }

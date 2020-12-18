@@ -1,18 +1,16 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class TradeMqConsumerLog extends TradeMqConsumerLogKey {
+public class TradeMqConsumerLog extends TradeMqConsumerLogKey implements Serializable {
+
+    private static final long serialVersionUID = 608105644082635443L;
     private String msgId;
-
     private String msgBody;
-
     private Integer consumerStatus;
-
     private Integer consumerTimes;
-
     private Date consumerTimestamp;
-
     private String remark;
 
     public String getMsgId() {

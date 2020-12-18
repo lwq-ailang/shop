@@ -17,15 +17,16 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Component
+//dubbo生产者
 @Service(interfaceClass = IUserService.class)
 public class UserServiceImpl implements IUserService{
 
     @Autowired
     private TradeUserMapper userMapper;
-
     @Autowired
     private TradeUserMoneyLogMapper userMoneyLogMapper;
 
+    //查找用户
     @Override
     public TradeUser findOne(Long userId) {
         if(userId==null){
@@ -45,19 +46,20 @@ public class UserServiceImpl implements IUserService{
             CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
         }
 
-        //2.查询订单余额使用日志
+        //2.余额使用日志去查询订单，判断是否已经支付
         TradeUserMoneyLogExample userMoneyLogExample = new TradeUserMoneyLogExample();
         TradeUserMoneyLogExample.Criteria criteria = userMoneyLogExample.createCriteria();
+        //构建查询条件
         criteria.andOrderIdEqualTo(userMoneyLog.getOrderId());
         criteria.andUserIdEqualTo(userMoneyLog.getUserId());
+        //统计日志是否有该用户的订单记录
         int r = userMoneyLogMapper.countByExample(userMoneyLogExample);
-
+        //获取用户--用来扣减余额和回退余额
         TradeUser tradeUser = userMapper.selectByPrimaryKey(userMoneyLog.getUserId());
-
         //3.扣减余额...
         if(userMoneyLog.getMoneyLogType().intValue()==ShopCode.SHOP_USER_MONEY_PAID.getCode().intValue()){
+            //已经付款
             if(r>0){
-                //已经付款
                 CastException.cast(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY);
             }
             //减余额
@@ -73,11 +75,13 @@ public class UserServiceImpl implements IUserService{
             //防止多次退款
             TradeUserMoneyLogExample userMoneyLogExample2 = new TradeUserMoneyLogExample();
             TradeUserMoneyLogExample.Criteria criteria1 = userMoneyLogExample2.createCriteria();
+            //构建查询条件
             criteria1.andOrderIdEqualTo(userMoneyLog.getOrderId());
             criteria1.andUserIdEqualTo(userMoneyLog.getUserId());
             criteria1.andMoneyLogTypeEqualTo(ShopCode.SHOP_USER_MONEY_REFUND.getCode());
             int r2 = userMoneyLogMapper.countByExample(userMoneyLogExample2);
             if(r2>0){
+                //已退款，不需要重复退款
                 CastException.cast(ShopCode.SHOP_USER_MONEY_REFUND_ALREADY);
             }
             //退款

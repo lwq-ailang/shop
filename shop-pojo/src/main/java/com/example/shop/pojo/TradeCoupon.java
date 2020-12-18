@@ -1,19 +1,17 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class TradeCoupon {
+public class TradeCoupon implements Serializable {
+
+    private static final long serialVersionUID = 7658350937329286334L;
     private Long couponId;
-
     private BigDecimal couponPrice;
-
     private Long userId;
-
     private Long orderId;
-
     private Integer isUsed;
-
     private Date usedTime;
 
     public Long getCouponId() {

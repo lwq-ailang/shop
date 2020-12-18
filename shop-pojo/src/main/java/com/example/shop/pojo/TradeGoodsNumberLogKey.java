@@ -1,8 +1,11 @@
 package com.example.shop.pojo;
 
-public class TradeGoodsNumberLogKey {
-    private Long goodsId;
+import java.io.Serializable;
 
+public class TradeGoodsNumberLogKey implements Serializable {
+
+    private static final long serialVersionUID = 426988493356546076L;
+    private Long goodsId;
     private Long orderId;
 
     public Long getGoodsId() {

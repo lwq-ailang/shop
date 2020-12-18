@@ -1,9 +1,11 @@
 package com.example.shop.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class MQEntity {
+public class MQEntity implements Serializable {
 
+    private static final long serialVersionUID = -3083081110450223551L;
     private Long orderId;
     private Long couponId;
     private Long userId;

@@ -6,6 +6,8 @@
         <artifactId>shop-parent</artifactId>
         <groupId>com.example.shop</groupId>
         <version>1.0-SNAPSHOT</version>
+        <!--报错没事-->
+        <relativePath>../shop-parent/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

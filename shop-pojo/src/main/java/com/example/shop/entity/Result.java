@@ -6,6 +6,8 @@ import java.io.Serializable;
  * 结果实体类
  */
 public class Result implements Serializable {
+
+    private static final long serialVersionUID = 6437749289863220275L;
     private Boolean success;
     private String message;
 

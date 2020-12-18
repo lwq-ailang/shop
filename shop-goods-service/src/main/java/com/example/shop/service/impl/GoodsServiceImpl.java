@@ -44,6 +44,7 @@ public class GoodsServiceImpl implements IGoodsService {
                 goodsNumberLog.getGoodsNumber().intValue() <= 0) {
             CastException.cast(ShopCode.SHOP_REQUEST_PARAMETER_VALID);
         }
+        //根据商品id查询商品信息
         TradeGoods goods = goodsMapper.selectByPrimaryKey(goodsNumberLog.getGoodsId());
         if(goods.getGoodsNumber()<goodsNumberLog.getGoodsNumber()){
             //库存不足
@@ -53,15 +54,12 @@ public class GoodsServiceImpl implements IGoodsService {
         goods.setGoodsNumber(goods.getGoodsNumber()-goodsNumberLog.getGoodsNumber());
         goodsMapper.updateByPrimaryKey(goods);
 
-
-        //记录库存操作日志
+        //记录库存操作日志: 减库存-  加库存+
         goodsNumberLog.setGoodsNumber(-(goodsNumberLog.getGoodsNumber()));
         goodsNumberLog.setLogTime(new Date());
         goodsNumberLogMapper.insert(goodsNumberLog);
 
         return new Result(ShopCode.SHOP_SUCCESS.getSuccess(),ShopCode.SHOP_SUCCESS.getMessage());
     }
-
-
 
 }

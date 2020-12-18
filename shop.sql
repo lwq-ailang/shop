@@ -2,7 +2,8 @@
 SQLyog Ultimate v8.32 
 MySQL - 5.5.49 : Database - trade
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -30,7 +31,7 @@ CREATE TABLE `trade_coupon` (
   PRIMARY KEY (`coupon_id`),
   KEY `FK_trade_coupon` (`user_id`),
   KEY `FK_trade_coupon2` (`order_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠券表';
 
 /*Data for the table `trade_coupon` */
 
@@ -46,11 +47,11 @@ CREATE TABLE `trade_goods` (
   `goods_desc` varchar(255) DEFAULT NULL COMMENT '商品描述',
   `add_time` timestamp NULL DEFAULT NULL COMMENT '添加时间',
   PRIMARY KEY (`goods_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=345959443973935105 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=345959443973935105 DEFAULT CHARSET=utf8 COMMENT='商品表';
 
 /*Data for the table `trade_goods` */
 
-insert  into `trade_goods`(`goods_id`,`goods_name`,`goods_number`,`goods_price`,`goods_desc`,`add_time`) values (345959443973935104,'华为P30',999,'5000.00','夜间拍照更美','2019-07-09 20:38:00');
+insert  into `trade_goods`(`goods_id`,`goods_name`,`goods_number`,`goods_price`,`goods_desc`,`add_time`) values (345959443973935104,'华为P30',999,'1000.00','夜间拍照更美','2019-07-09 20:38:00');
 
 /*Table structure for table `trade_goods_number_log` */
 
@@ -63,46 +64,9 @@ CREATE TABLE `trade_goods_number_log` (
   `log_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`goods_id`,`order_id`),
   KEY `FK_trade_goods_number_log2` (`order_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单商品日志表';
 
 /*Data for the table `trade_goods_number_log` */
-
-/*Table structure for table `trade_mq_consumer_log` */
-
-DROP TABLE IF EXISTS `trade_mq_consumer_log`;
-
-CREATE TABLE `trade_mq_consumer_log` (
-  `msg_id` varchar(50) DEFAULT NULL,
-  `group_name` varchar(100) NOT NULL,
-  `msg_tag` varchar(100) NOT NULL,
-  `msg_key` varchar(100) NOT NULL,
-  `msg_body` varchar(500) DEFAULT NULL,
-  `consumer_status` int(1) DEFAULT NULL COMMENT '0:正在处理;1:处理成功;2:处理失败',
-  `consumer_times` int(1) DEFAULT NULL,
-  `consumer_timestamp` timestamp NULL DEFAULT NULL,
-  `remark` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`group_name`,`msg_tag`,`msg_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*Data for the table `trade_mq_consumer_log` */
-
-/*Table structure for table `trade_mq_producer_temp` */
-
-DROP TABLE IF EXISTS `trade_mq_producer_temp`;
-
-CREATE TABLE `trade_mq_producer_temp` (
-  `id` varchar(100) NOT NULL,
-  `group_name` varchar(100) DEFAULT NULL,
-  `msg_topic` varchar(100) DEFAULT NULL,
-  `msg_tag` varchar(100) DEFAULT NULL,
-  `msg_key` varchar(100) DEFAULT NULL,
-  `msg_body` varchar(500) DEFAULT NULL,
-  `msg_status` int(1) DEFAULT NULL COMMENT '0:未处理;1:已经处理',
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*Data for the table `trade_mq_producer_temp` */
 
 /*Table structure for table `trade_order` */
 
@@ -133,7 +97,7 @@ CREATE TABLE `trade_order` (
   KEY `FK_trade_order` (`user_id`),
   KEY `FK_trade_order2` (`goods_id`),
   KEY `FK_trade_order3` (`coupon_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8  COMMENT='订单表';
 
 /*Data for the table `trade_order` */
 
@@ -148,7 +112,7 @@ CREATE TABLE `trade_pay` (
   `is_paid` int(1) DEFAULT NULL COMMENT '是否已支付 1否 2是',
   PRIMARY KEY (`pay_id`),
   KEY `FK_trade_pay` (`order_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单支付表';
 
 /*Data for the table `trade_pay` */
 
@@ -165,11 +129,11 @@ CREATE TABLE `trade_user` (
   `user_reg_time` timestamp NULL DEFAULT NULL COMMENT '注册时间',
   `user_money` decimal(10,0) DEFAULT NULL COMMENT '用户余额',
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=345963634385633281 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=345963634385633281 DEFAULT CHARSET=utf8  COMMENT='用户表';
 
 /*Data for the table `trade_user` */
 
-insert  into `trade_user`(`user_id`,`user_name`,`user_password`,`user_mobile`,`user_score`,`user_reg_time`,`user_money`) values (345963634385633280,'刘备','123L','18888888888L',100,'2019-07-09 13:37:03','900');
+insert  into `trade_user`(`user_id`,`user_name`,`user_password`,`user_mobile`,`user_score`,`user_reg_time`,`user_money`) values (345963634385633280,'刘备','123L','18888888888L',100,'2020-12-09 13:37:03','900');
 
 /*Table structure for table `trade_user_money_log` */
 
@@ -183,11 +147,51 @@ CREATE TABLE `trade_user_money_log` (
   `create_time` timestamp NULL DEFAULT NULL COMMENT '日志时间',
   PRIMARY KEY (`user_id`,`order_id`,`money_log_type`),
   KEY `FK_trade_user_money_log2` (`order_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户余额日志表';
 
 /*Data for the table `trade_user_money_log` */
+
+
+/*Table structure for table `trade_mq_consumer_log` */
+
+DROP TABLE IF EXISTS `trade_mq_consumer_log`;
+
+CREATE TABLE `trade_mq_consumer_log` (
+  `msg_id` varchar(50) DEFAULT NULL,
+  `group_name` varchar(100) NOT NULL,
+  `msg_tag` varchar(100) NOT NULL,
+  `msg_key` varchar(100) NOT NULL,
+  `msg_body` varchar(500) DEFAULT NULL,
+  `consumer_status` int(1) DEFAULT NULL COMMENT '0:正在处理;1:处理成功;2:处理失败',
+  `consumer_times` int(1) DEFAULT NULL,
+  `consumer_timestamp` timestamp NULL DEFAULT NULL,
+  `remark` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`group_name`,`msg_tag`,`msg_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8  COMMENT='MQ消息消费者表';
+
+/*Data for the table `trade_mq_consumer_log` */
+
+/*Table structure for table `trade_mq_producer_temp` */
+
+DROP TABLE IF EXISTS `trade_mq_producer_temp`;
+
+CREATE TABLE `trade_mq_producer_temp` (
+  `id` varchar(100) NOT NULL,
+  `group_name` varchar(100) DEFAULT NULL,
+  `msg_topic` varchar(100) DEFAULT NULL,
+  `msg_tag` varchar(100) DEFAULT NULL,
+  `msg_key` varchar(100) DEFAULT NULL,
+  `msg_body` varchar(500) DEFAULT NULL,
+  `msg_status` int(1) DEFAULT NULL COMMENT '0:未处理;1:已经处理',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8  COMMENT='MQ消息生产者表';
+
+/*Data for the table `trade_mq_producer_temp` */
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+

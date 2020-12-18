@@ -17,6 +17,7 @@ public class CouponServiceImpl implements ICouponService{
     @Autowired
     private TradeCouponMapper couponMapper;
 
+    //查询单个优惠券信息
     @Override
     public TradeCoupon findOne(Long coupouId) {
         if(coupouId==null){
@@ -26,6 +27,7 @@ public class CouponServiceImpl implements ICouponService{
         return couponMapper.selectByPrimaryKey(coupouId);
     }
 
+    //更新优惠券状态
     @Override
     public Result updateCouponStatus(TradeCoupon coupon) {
         if(coupon==null||coupon.getCouponId()==null){

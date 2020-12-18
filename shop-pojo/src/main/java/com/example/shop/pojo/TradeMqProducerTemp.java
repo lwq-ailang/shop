@@ -1,22 +1,18 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class TradeMqProducerTemp {
+public class TradeMqProducerTemp implements Serializable {
+
+    private static final long serialVersionUID = -5424979561532078253L;
     private String id;
-
     private String groupName;
-
     private String msgTopic;
-
     private String msgTag;
-
     private String msgKey;
-
     private String msgBody;
-
     private Integer msgStatus;
-
     private Date createTime;
 
     public String getId() {

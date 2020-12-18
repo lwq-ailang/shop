@@ -1,14 +1,14 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class TradePay {
+public class TradePay implements Serializable {
+
+    private static final long serialVersionUID = 4011156458611685630L;
     private Long payId;
-
     private Long orderId;
-
     private BigDecimal payAmount;
-
     private Integer isPaid;
 
     public Long getPayId() {

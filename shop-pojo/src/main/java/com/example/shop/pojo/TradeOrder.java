@@ -1,47 +1,31 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class TradeOrder {
+public class TradeOrder implements Serializable {
+
+    private static final long serialVersionUID = -3059513101452629142L;
     private Long orderId;
-
     private Long userId;
-
     private Integer orderStatus;
-
     private Integer payStatus;
-
     private Integer shippingStatus;
-
     private String address;
-
     private String consignee;
-
     private Long goodsId;
-
     private Integer goodsNumber;
-
     private BigDecimal goodsPrice;
-
     private Long goodsAmount;
-
     private BigDecimal shippingFee;
-
     private BigDecimal orderAmount;
-
     private Long couponId;
-
     private BigDecimal couponPaid;
-
     private BigDecimal moneyPaid;
-
     private BigDecimal payAmount;
-
     private Date addTime;
-
     private Date confirmTime;
-
     private Date payTime;
 
     public Long getOrderId() {

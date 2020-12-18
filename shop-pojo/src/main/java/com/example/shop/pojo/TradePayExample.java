@@ -1,14 +1,15 @@
 package com.example.shop.pojo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TradePayExample {
+public class TradePayExample implements Serializable {
+
+    private static final long serialVersionUID = -2416109725402044831L;
     protected String orderByClause;
-
     protected boolean distinct;
-
     protected List<Criteria> oredCriteria;
 
     public TradePayExample() {

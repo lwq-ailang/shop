@@ -2,10 +2,12 @@ package com.example.shop.mapper;
 
 import com.example.shop.pojo.TradeCoupon;
 import com.example.shop.pojo.TradeCouponExample;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface TradeCouponMapper {
     int countByExample(TradeCouponExample example);
 

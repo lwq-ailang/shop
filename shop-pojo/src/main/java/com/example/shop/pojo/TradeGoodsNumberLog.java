@@ -2,6 +2,7 @@ package com.example.shop.pojo;
 
 import java.util.Date;
 
+//订单商品日志表
 public class TradeGoodsNumberLog extends TradeGoodsNumberLogKey {
     private Integer goodsNumber;
 

@@ -1,10 +1,12 @@
 package com.example.shop.pojo;
 
-public class TradeMqConsumerLogKey {
+import java.io.Serializable;
+
+public class TradeMqConsumerLogKey implements Serializable {
+
+    private static final long serialVersionUID = -6313309045628687760L;
     private String groupName;
-
     private String msgTag;
-
     private String msgKey;
 
     public String getGroupName() {

@@ -18,10 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -86,7 +88,6 @@ public class OrderServiceImpl implements IOrderService {
             mqEntity.setGoodsId(order.getGoodsId());
             mqEntity.setGoodsNum(order.getGoodsNumber());
             mqEntity.setCouponId(order.getCouponId());
-
             //2.返回订单确认失败消息
             try {
                 sendCancelOrder(topic,tag,order.getOrderId().toString(), JSON.toJSONString(mqEntity));
@@ -150,7 +151,7 @@ public class OrderServiceImpl implements IOrderService {
     private Long savePreOrder(TradeOrder order) {
         //1. 设置订单状态为不可见【0, "订单未确认，1, "订单已经确认"，2, "订单已取消"，3, "订单无效"，4, "订单已退货"】
         order.setOrderStatus(ShopCode.SHOP_ORDER_NO_CONFIRM.getCode());
-        //2. 设置订单ID
+        //2. 设置订单ID - 使用雪花算法，防止分库分表订单id重复
         long orderId = idWorker.nextId();
         order.setOrderId(orderId);
         //3. 核算订单运费
@@ -160,7 +161,7 @@ public class OrderServiceImpl implements IOrderService {
         }
         //4. 核算订单总金额是否合法
         BigDecimal orderAmount = order.getGoodsPrice().multiply(new BigDecimal(order.getGoodsNumber()));
-        orderAmount.add(shippingFee);
+        orderAmount.add(shippingFee); //订单总价 + 运费价格
         if(order.getOrderAmount().compareTo(orderAmount)!=0){
             CastException.cast(ShopCode.SHOP_ORDERAMOUNT_INVALID);
         }
@@ -169,21 +170,18 @@ public class OrderServiceImpl implements IOrderService {
         if(moneyPaid!=null){
             //5.1 订单中余额是否合法
             int r = moneyPaid.compareTo(BigDecimal.ZERO);
-
             //余额小于0
             if(r==-1){
                 CastException.cast(ShopCode.SHOP_MONEY_PAID_LESS_ZERO);
             }
-
             //余额大于0
             if(r==1){
+                //获取用户的余额
                 TradeUser user = userService.findOne(order.getUserId());
-
                 if(moneyPaid.compareTo(new BigDecimal(user.getUserMoney()))==1){
                     CastException.cast(ShopCode.SHOP_MONEY_PAID_INVALID);
                 }
             }
-
         }else{
             order.setMoneyPaid(BigDecimal.ZERO);
         }
@@ -199,13 +197,11 @@ public class OrderServiceImpl implements IOrderService {
             if(coupon.getIsUsed().intValue()==ShopCode.SHOP_COUPON_ISUSED.getCode().intValue()){
                 CastException.cast(ShopCode.SHOP_COUPON_ISUSED);
             }
-
             order.setCouponPaid(coupon.getCouponPrice());
-
         }else{
             order.setCouponPaid(BigDecimal.ZERO);
         }
-        //7.核算订单支付金额    订单总金额-余额-优惠券金额
+        //7.核算订单支付金额 = 订单总金额-余额-优惠券金额
         BigDecimal payAmount = order.getOrderAmount().subtract(order.getMoneyPaid()).subtract(order.getCouponPaid());
         order.setPayAmount(payAmount);
         //8.设置下单时间
@@ -249,11 +245,11 @@ public class OrderServiceImpl implements IOrderService {
      */
     private void updateCouponStatus(TradeOrder order) {
         if(order.getCouponId()!=null){
+            //获取优惠券信息
             TradeCoupon coupon = couponService.findOne(order.getCouponId());
             coupon.setOrderId(order.getOrderId());
             coupon.setIsUsed(ShopCode.SHOP_COUPON_ISUSED.getCode());
             coupon.setUsedTime(new Date());
-
             //更新优惠券状态
             Result result =  couponService.updateCouponStatus(coupon);
             if(result.getSuccess().equals(ShopCode.SHOP_FAIL.getSuccess())){
@@ -268,10 +264,12 @@ public class OrderServiceImpl implements IOrderService {
      */
     private void reduceMoneyPaid(TradeOrder order) {
         if(order.getMoneyPaid()!=null && order.getMoneyPaid().compareTo(BigDecimal.ZERO)==1){
+            //用户余额日志表
             TradeUserMoneyLog userMoneyLog = new TradeUserMoneyLog();
             userMoneyLog.setOrderId(order.getOrderId());
             userMoneyLog.setUserId(order.getUserId());
             userMoneyLog.setUseMoney(order.getMoneyPaid());
+            //订单的状态--非常重要
             userMoneyLog.setMoneyLogType(ShopCode.SHOP_USER_MONEY_PAID.getCode());
             Result result = userService.updateMoneyPaid(userMoneyLog);
             if(result.getSuccess().equals(ShopCode.SHOP_FAIL.getSuccess())){
@@ -288,6 +286,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setOrderStatus(ShopCode.SHOP_ORDER_CONFIRM.getCode());
         order.setPayStatus(ShopCode.SHOP_ORDER_PAY_STATUS_NO_PAY.getCode());
         order.setConfirmTime(new Date());
+        //更新最终订单
         int r = orderMapper.updateByPrimaryKey(order);
         if(r<=0){
             CastException.cast(ShopCode.SHOP_ORDER_CONFIRM_FAIL);
@@ -296,11 +295,13 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     /**
-     * 发送订单确认失败消息 -- 异常调用
+     * 往MQ发送订单确认失败消息 -- 异常调用
      */
     private void sendCancelOrder(String topic, String tag, String keys, String body) throws InterruptedException, RemotingException, MQClientException, MQBrokerException {
         Message message = new Message(topic,tag,keys,body.getBytes());
         rocketMQTemplate.getProducer().send(message);
+
+        //rocketMQTemplate.send(topic + ":" + tag, MessageBuilder.withPayload(body).setHeader(MessageConst.PROPERTY_KEYS,keys).build());
     }
 
 }
