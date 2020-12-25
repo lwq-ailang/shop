@@ -19,7 +19,7 @@ import java.io.UnsupportedEncodingException;
 @Component
 @RocketMQMessageListener(topic = "${mq.order.topic}",
         consumerGroup = "${mq.order.consumer.group.name}",
-        messageModel = MessageModel.BROADCASTING)
+        messageModel = MessageModel.BROADCASTING) //广播模式：所有的消费者都需要消费消息
 public class CancelMQListener implements RocketMQListener<MessageExt> {
 
     @Autowired
@@ -31,20 +31,19 @@ public class CancelMQListener implements RocketMQListener<MessageExt> {
             //1. 解析消息内容
             String body = new String(message.getBody(), "UTF-8");
             MQEntity mqEntity = JSON.parseObject(body, MQEntity.class);
-            log.info("接收到消息");
-            if(mqEntity.getCouponId()!=null){
+            log.info("couponService【优惠券回退】 -- 接收到消息");
+            if (mqEntity.getCouponId() != null) {
                 //2. 查询优惠券信息
                 TradeCoupon coupon = couponMapper.selectByPrimaryKey(mqEntity.getCouponId());
                 //3.更改优惠券状态
-                coupon.setUsedTime(null);
                 coupon.setIsUsed(ShopCode.SHOP_COUPON_UNUSED.getCode());
+                coupon.setUsedTime(null);
                 coupon.setOrderId(null);
                 couponMapper.updateByPrimaryKey(coupon);
             }
-            log.info("回退优惠券成功");
+            log.info("couponService【优惠券回退】-- 回退优惠券【trade_coupon】成功");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            log.error("回退优惠券失败");
+            log.info("couponService【优惠券回退】 -- 回退优惠券【trade_coupon】异常：{}", e);
         }
     }
 

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CastException {
 
     public static void cast(ShopCode shopCode) {
-        log.info(shopCode.toString());
+        //log.info(shopCode.toString());
         throw new CustomerException(shopCode);
     }
 

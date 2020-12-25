@@ -18,7 +18,9 @@ import java.io.UnsupportedEncodingException;
 
 @Slf4j
 @Component
-@RocketMQMessageListener(topic = "${mq.pay.topic}",consumerGroup = "${mq.pay.consumer.group.name}",messageModel = MessageModel.BROADCASTING)
+@RocketMQMessageListener(topic = "${mq.pay.topic}",
+        consumerGroup = "${mq.pay.consumer.group.name}",
+        messageModel = MessageModel.BROADCASTING)
 public class PaymentListener implements RocketMQListener<MessageExt>{
 
     @Autowired
@@ -26,9 +28,7 @@ public class PaymentListener implements RocketMQListener<MessageExt>{
 
     @Override
     public void onMessage(MessageExt messageExt) {
-
-        log.info("接收到支付成功消息");
-
+        log.info("orderService -- 接收到支付成功消息");
         try {
             //1.解析消息内容
             String body = new String(messageExt.getBody(),"UTF-8");
@@ -39,9 +39,9 @@ public class PaymentListener implements RocketMQListener<MessageExt>{
             tradeOrder.setPayStatus(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY.getCode());
             //4.更新订单数据到数据库
             orderMapper.updateByPrimaryKey(tradeOrder);
-            log.info("更改订单支付状态为已支付");
+            log.info("orderService -- 更改订单支付状态为已支付");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            log.info("orderService -- 支付异常：{}",e);
         }
 
     }

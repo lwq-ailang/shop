@@ -28,36 +28,31 @@ import org.springframework.util.StringUtils;
 
 import java.util.Date;
 
-
 @Slf4j
 @Component
 @Service(interfaceClass = IPayService.class)
 public class PayServiceImpl implements IPayService{
 
     @Autowired
-    private TradePayMapper tradePayMapper;
-
-    @Autowired
-    private TradeMqProducerTempMapper mqProducerTempMapper;
-
-    @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
-
     @Autowired
     private RocketMQTemplate rocketMQTemplate;
-
     @Autowired
     private IDWorker idWorker;
 
     @Value("${rocketmq.producer.group}")
     private String groupName;
-
     @Value("${mq.topic}")
     private String topic;
-
     @Value("${mq.pay.tag}")
     private String tag;
 
+    @Autowired
+    private TradePayMapper tradePayMapper;
+    @Autowired
+    private TradeMqProducerTempMapper mqProducerTempMapper;
+
+    //下单--设置订单的状态为未支付
     @Override
     public Result createPayment(TradePay tradePay) {
 
@@ -69,9 +64,11 @@ public class PayServiceImpl implements IPayService{
         TradePayExample example = new TradePayExample();
         TradePayExample.Criteria criteria = example.createCriteria();
         criteria.andOrderIdEqualTo(tradePay.getOrderId());
+        //支付订单已支付状态
         criteria.andIsPaidEqualTo(ShopCode.SHOP_PAYMENT_IS_PAID.getCode());
         int r = tradePayMapper.countByExample(example);
         if(r>0){
+            //订单已支付
             CastException.cast(ShopCode.SHOP_PAYMENT_IS_PAID);
         }
         //2.设置订单的状态为未支付
@@ -83,6 +80,7 @@ public class PayServiceImpl implements IPayService{
         return new Result(ShopCode.SHOP_SUCCESS.getSuccess(),ShopCode.SHOP_SUCCESS.getMessage());
     }
 
+    //第三方平台调用：更新支付订单状态
     @Override
     public Result callbackPayment(TradePay tradePay) throws InterruptedException, RemotingException, MQClientException, MQBrokerException {
         log.info("支付回调");
@@ -95,6 +93,7 @@ public class PayServiceImpl implements IPayService{
             if(pay==null){
                 CastException.cast(ShopCode.SHOP_PAYMENT_NOT_FOUND);
             }
+            //将支付订单状态改为已支付
             pay.setIsPaid(ShopCode.SHOP_ORDER_PAY_STATUS_IS_PAY.getCode());
             int r = tradePayMapper.updateByPrimaryKeySelective(pay);
             log.info("支付订单状态改为已支付");
@@ -102,9 +101,9 @@ public class PayServiceImpl implements IPayService{
                 //3. 创建支付成功的消息
                 TradeMqProducerTemp tradeMqProducerTemp = new TradeMqProducerTemp();
                 tradeMqProducerTemp.setId(String.valueOf(idWorker.nextId()));
-                tradeMqProducerTemp.setGroupName(groupName);
                 tradeMqProducerTemp.setMsgTopic(topic);
                 tradeMqProducerTemp.setMsgTag(tag);
+                tradeMqProducerTemp.setGroupName(groupName);
                 tradeMqProducerTemp.setMsgKey(String.valueOf(tradePay.getPayId()));
                 tradeMqProducerTemp.setMsgBody(JSON.toJSONString(tradePay));
                 tradeMqProducerTemp.setCreateTime(new Date());
@@ -119,6 +118,7 @@ public class PayServiceImpl implements IPayService{
                         //5. 发送消息到MQ
                         SendResult result = null;
                         try {
+                            //发送支付成功消息--通知订单修改状态为已支付
                             result = sendMessage(topic, tag, String.valueOf(tradePay.getPayId()), JSON.toJSONString(tradePay));
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -138,8 +138,6 @@ public class PayServiceImpl implements IPayService{
             CastException.cast(ShopCode.SHOP_PAYMENT_PAY_ERROR);
             return new Result(ShopCode.SHOP_FAIL.getSuccess(),ShopCode.SHOP_FAIL.getMessage());
         }
-
-
     }
 
     /**
@@ -160,4 +158,5 @@ public class PayServiceImpl implements IPayService{
         SendResult sendResult = rocketMQTemplate.getProducer().send(message);
         return sendResult;
     }
+
 }

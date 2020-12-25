@@ -17,6 +17,7 @@ import com.example.shop.pojo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.remoting.exception.RemotingException;
@@ -35,7 +36,7 @@ import java.util.Date;
 @Service(interfaceClass = IOrderService.class)
 public class OrderServiceImpl implements IOrderService {
 
-    //MQ
+    //MQ -- 订单创建失败，需要回滚
     @Value("${mq.order.topic}")
     private String topic;
     @Value("${mq.order.tag.cancel}")
@@ -295,13 +296,15 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     /**
-     * 往MQ发送订单确认失败消息 -- 异常调用
+     * 往MQ发送订单确认失败消息
      */
     private void sendCancelOrder(String topic, String tag, String keys, String body) throws InterruptedException, RemotingException, MQClientException, MQBrokerException {
         Message message = new Message(topic,tag,keys,body.getBytes());
-        rocketMQTemplate.getProducer().send(message);
+        SendResult send = rocketMQTemplate.getProducer().send(message);
+        log.info("第一条mq={}",send);
 
         //rocketMQTemplate.send(topic + ":" + tag, MessageBuilder.withPayload(body).setHeader(MessageConst.PROPERTY_KEYS,keys).build());
+        //log.info("第二条");
     }
 
 }

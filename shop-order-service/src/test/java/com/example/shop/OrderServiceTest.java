@@ -1,8 +1,11 @@
 package com.example.shop;
 
 import com.example.api.IOrderService;
+import com.example.shop.common.constant.ShopCode;
 import com.example.shop.common.exception.CustomerException;
+import com.example.shop.entity.Result;
 import com.example.shop.pojo.TradeOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import java.math.BigDecimal;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = OrderServiceApplication.class)
+@Slf4j
 public class OrderServiceTest {
 
     @Autowired
@@ -21,6 +25,7 @@ public class OrderServiceTest {
 
     @Test
     public void confirmOrder() throws IOException {
+        Result result = new Result();
         try {
             Long coupouId = 345988230098857984L;
             Long goodsId = 345959443973935104L;
@@ -38,11 +43,14 @@ public class OrderServiceTest {
             order.setMoneyPaid(new BigDecimal(100));//用户余额
             orderService.confirmOrder(order);
         } catch (CustomerException customerException) {
-            customerException.printStackTrace();
+            result.setCode(customerException.getCodeByCustomerException());
+            result.setMessage(customerException.getMessageByCustomerException());
+            log.info("{}",result);
         }catch (Exception exception){
             exception.printStackTrace();
         }
 
+        //保证服务不要停止
         System.in.read();
     }
 

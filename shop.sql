@@ -58,6 +58,7 @@ insert  into `trade_goods`(`goods_id`,`goods_name`,`goods_number`,`goods_price`,
 DROP TABLE IF EXISTS `trade_goods_number_log`;
 
 CREATE TABLE `trade_goods_number_log` (
+  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '订单商品日志表ID',
   `goods_id` bigint(50) NOT NULL COMMENT '商品ID',
   `order_id` bigint(50) NOT NULL COMMENT '订单ID',
   `goods_number` int(11) DEFAULT NULL COMMENT '库存数量',
@@ -140,6 +141,7 @@ insert  into `trade_user`(`user_id`,`user_name`,`user_password`,`user_mobile`,`u
 DROP TABLE IF EXISTS `trade_user_money_log`;
 
 CREATE TABLE `trade_user_money_log` (
+  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '用户余额日志表ID',
   `user_id` bigint(50) NOT NULL COMMENT '用户ID',
   `order_id` bigint(50) NOT NULL COMMENT '订单ID',
   `money_log_type` int(1) NOT NULL COMMENT '日志类型 1订单付款 2 订单退款',
